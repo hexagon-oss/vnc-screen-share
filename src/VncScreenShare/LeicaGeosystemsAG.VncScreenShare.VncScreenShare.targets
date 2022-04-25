@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Target Name="CopyFilesToTargetDirectory_LeicaGeosystemsAG_VncScreenShare_VncScreenShare" BeforeTargets="Build">
+    <ItemGroup>
+			<FilesForTargetDirectory_LeicaGeosystemsAG_VncScreenShare_VncScreenShare Include="$(MSBuildThisFileDirectory)\..\tools\**\*.*" />
+    </ItemGroup>
+    <PropertyGroup>
+			<TargetDirectory_LeicaGeosystemsAG_VncScreenShare_VncScreenShare Condition="'$(TargetDirectory_LeicaGeosystemsAG_VncScreenShare_VncScreenShare)' == ''">$(TargetDir)</TargetDirectory_LeicaGeosystemsAG_VncScreenShare_VncScreenShare>
+    </PropertyGroup>
+    <Copy SourceFiles="@(FilesForTargetDirectory_LeicaGeosystemsAG_VncScreenShare_VncScreenShare)" 
+          DestinationFolder="$(TargetDirectory_LeicaGeosystemsAG_VncScreenShare_VncScreenShare)\%(RecursiveDir)"
+          SkipUnchangedFiles="true" />
+  </Target>
+</Project>

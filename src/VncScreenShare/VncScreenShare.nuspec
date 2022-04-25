@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <!-- Required elements-->
+        <id>LeicaGeosystemsAG.VncScreenShare.VncScreenShare</id>
+        <version>$Version$</version>
+        <description>VNC server to share an applications UI via VNC.</description>
+        <authors>Leica Geosystems AG</authors>
+        <owners>Leica Geosystems AG</owners>
+        <copyright>Copyright (C) 1999-2022 Leica Geosystems AG</copyright>
+ 
+        <!-- Optional elements -->
+        <license type="expression">MIT</license>
+        <icon>images\VncScreenShare.png</icon>
+        <dependencies>
+            <dependency id="LeicaGeosystemsAG.NewRemoting" version="$Version$"/>
+        </dependencies>
+    </metadata>
+    <!-- Optional 'files' node -->
+    <files>
+        <file src="VncScreenShare.*" target="tools" />
+        <file src="..\..\..\..\LeicaGeosystemsAG.VncScreenShare.VncScreenShare.targets" target="build" />
+        <file src="..\..\..\..\VncScreenShare.png" target="images" />
+    </files>
+</package>
