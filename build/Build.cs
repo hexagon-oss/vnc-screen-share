@@ -1,14 +1,25 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Nuke.Common;
 using Nuke.Common.CI;
+using Nuke.Common.CI.TeamCity;
 using Nuke.Common.Execution;
 using Nuke.Common.Git;
 using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
+using Nuke.Common.Tooling;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.GitVersion;
+using Nuke.Common.Tools.NuGet;
+using Nuke.Common.Tools.OpenCover;
+using Nuke.Common.Tools.ReportGenerator;
 using Nuke.Common.Utilities.Collections;
+using static Nuke.Common.EnvironmentInfo;
 using static Nuke.Common.IO.FileSystemTasks;
+using static Nuke.Common.IO.PathConstruction;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
+using static Nuke.Common.Tools.NuGet.NuGetTasks;
 
 [CheckBuildProjectConfigurations]
 [ShutdownDotNetAfterServerBuild]
@@ -59,5 +70,44 @@ class Build : NukeBuild
                 .SetInformationalVersion(GitVersion.InformationalVersion)
                 .EnableNoRestore());
         });
+		
+		 Target PublishExecutable => _ => _
+	    .DependsOn(Compile)
+	    .Executes(() =>
+	    {
+		    DotNetPublish(s => s
+			    .SetProject(SourceDirectory / "VncScreenShare" / "VncScreenShare.csproj")
+				.SetAssemblyVersion(GitVersion.AssemblySemVer)
+			    .SetFileVersion(GitVersion.AssemblySemFileVer)
+			    .SetInformationalVersion(GitVersion.InformationalVersion)
+			    .SetFramework("net60-windows10.0.22000")
+		    );
+	    });
+
+    Target Pack => _ => _
+	    .DependsOn(PublishExecutable)
+	    .Executes(() =>
+	    {
+		    DotNetPack(s => s
+			    .SetNoBuild(true)
+			    .SetNoRestore(true)
+			    .SetProject(SourceDirectory / "VncScreenShare" / "VncScreenShare.csproj")
+			    .SetConfiguration(Configuration)
+			    .SetAssemblyVersion(GitVersion.AssemblySemVer)
+			    .SetFileVersion(GitVersion.AssemblySemFileVer)
+			    .SetVersion(GitVersion.SemVer)
+			    .SetInformationalVersion(GitVersion.InformationalVersion));
+
+		    var publishDir = SourceDirectory / "VncScreenShare" / "bin" / Configuration / "net60-windows10.0.22000" / "publish";
+
+		    NuGetPack(s => s
+				    .SetBasePath(publishDir)
+				    .SetBuild(false)
+				    .SetVersion(GitVersion.SemVer)
+				    .SetConfiguration(Configuration)
+				    .SetTargetPath(SourceDirectory / "VncScreenShare" / "VncScreenShare.nuspec")
+				    .SetOutputDirectory(ArtifactsDirectory)
+			    );
+	    });
 
 }
