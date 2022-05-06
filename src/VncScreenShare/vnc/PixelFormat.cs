@@ -21,7 +21,7 @@ namespace VncScreenShare.Vnc
 
 				if (BitsPerPixel == 16)
 				{
-					if (RedMax == 2 << 5 && GreenMax == 2 << 6 && BlueMax == 2 << 5)
+					if (RedMax == 31 && GreenMax == 63 && BlueMax == 31)
 					{
 						return Format.B5G6R5_UNorm;
 					}
