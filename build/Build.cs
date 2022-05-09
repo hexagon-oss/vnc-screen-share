@@ -77,6 +77,7 @@ class Build : NukeBuild
 	    {
 		    DotNetPublish(s => s
 			    .SetProject(SourceDirectory / "VncScreenShare" / "VncScreenShare.csproj")
+			    .SetConfiguration(Configuration)
 				.SetAssemblyVersion(GitVersion.AssemblySemVer)
 			    .SetFileVersion(GitVersion.AssemblySemFileVer)
 			    .SetInformationalVersion(GitVersion.InformationalVersion)
