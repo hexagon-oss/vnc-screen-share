@@ -2,3 +2,4 @@
 /**/bin
 /.nuke/temp
 /src/.vs
+/artifacts
