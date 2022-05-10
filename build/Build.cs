@@ -78,6 +78,10 @@ class Build : NukeBuild
 		    DotNetPublish(s => s
 			    .SetProject(SourceDirectory / "VncScreenShare" / "VncScreenShare.csproj")
 			    .SetConfiguration(Configuration)
+			    .SetSelfContained(false)
+			    .SetRuntime("win-x64")
+			    .EnablePublishReadyToRun()
+			    .EnablePublishSingleFile()
 				.SetAssemblyVersion(GitVersion.AssemblySemVer)
 			    .SetFileVersion(GitVersion.AssemblySemFileVer)
 			    .SetInformationalVersion(GitVersion.InformationalVersion)
@@ -89,26 +93,10 @@ class Build : NukeBuild
 	    .DependsOn(PublishExecutable)
 	    .Executes(() =>
 	    {
-		    DotNetPack(s => s
-			    .SetNoBuild(true)
-			    .SetNoRestore(true)
-			    .SetProject(SourceDirectory / "VncScreenShare" / "VncScreenShare.csproj")
-			    .SetConfiguration(Configuration)
-			    .SetAssemblyVersion(GitVersion.AssemblySemVer)
-			    .SetFileVersion(GitVersion.AssemblySemFileVer)
-			    .SetVersion(GitVersion.SemVer)
-			    .SetInformationalVersion(GitVersion.InformationalVersion));
-
-		    var publishDir = SourceDirectory / "VncScreenShare" / "bin" / Configuration / "net60-windows10.0.22000" / "publish";
-
-		    NuGetPack(s => s
-				    .SetBasePath(publishDir)
-				    .SetBuild(false)
-				    .SetVersion(GitVersion.SemVer)
-				    .SetConfiguration(Configuration)
-				    .SetTargetPath(SourceDirectory / "VncScreenShare" / "VncScreenShare.nuspec")
-				    .SetOutputDirectory(ArtifactsDirectory)
-			    );
+			EnsureCleanDirectory(ArtifactsDirectory);
+		    var publishDir = SourceDirectory / "VncScreenShare" / "bin" / Configuration / "net60-windows10.0.22000" / "win-x64" / "publish";
+		    var artifact = ArtifactsDirectory / $"VncScreenShare_{GitVersion.SemVer}.zip";
+		    CompressionTasks.CompressZip(publishDir, artifact);
 	    });
 
 }
