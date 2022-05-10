@@ -2,7 +2,7 @@
   "profiles": {
     "vnc-screen-share": {
       "commandName": "Project",
-      "commandLineArgs": "--pid 24068 --lr"
+      "commandLineArgs": "service -n FlightPro -c \".?/REMOTE.?\""
     }
   }
 }

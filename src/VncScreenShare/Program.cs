@@ -1,7 +1,9 @@
-﻿// See https://aka.ms/new-console-template for more information
-
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using CommandLine;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.EventLog;
 
 namespace VncScreenShare
 {
@@ -9,12 +11,13 @@ namespace VncScreenShare
 	{
 		static void Main(string[] args)
 		{
-			CommandLine.Parser.Default.ParseArguments<CommandLineOptions>(args)
-				.WithParsed(Run)
+			CommandLine.Parser.Default.ParseArguments<CommandLineOptions, WatchMode>(args)
+				.WithParsed<CommandLineOptions>(Run)
+				.WithParsed<WatchMode>(RunInWatchMode)
 				.WithNotParsed(InvalidCommandLine);
 
 		}
-		
+
 		private static void Run(CommandLineOptions options)
 		{
 			if (Process.GetProcesses().All(x => x.Id != options.ProcessId))
@@ -23,7 +26,7 @@ namespace VncScreenShare
 				return;
 			}
 
-			var server = new AppWindowShareServer(options.ProcessId, options);
+			var server = new AppWindowShareServer(options.ProcessId, options.Port, options.LogFrameRate);
 			server.StartSharing();
 		}
 
@@ -36,6 +39,24 @@ namespace VncScreenShare
 			{
 				Console.WriteLine($"PID: {process.Id}\t{process.MainWindowTitle}");
 			}
+		}
+
+		private static void RunInWatchMode(WatchMode args)
+		{
+			using IHost host = Host.CreateDefaultBuilder()
+				.ConfigureLogging((context, logging) =>
+				{
+					logging.AddEventLog(new EventLogSettings()
+					{
+						SourceName = "VncScreenShare"
+					});
+				})
+				.ConfigureServices(services =>
+				{
+					services.AddHostedService((s) => new ScreenShareBackgroundService(args.ProcessName, args.CommandLine, args.Port, false, s.GetRequiredService<ILogger<ScreenShareBackgroundService>>()));
+				})
+				.Build();
+			host.Run();
 		}
 	}
 }
