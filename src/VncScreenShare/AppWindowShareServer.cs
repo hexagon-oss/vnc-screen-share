@@ -10,13 +10,13 @@ namespace VncScreenShare
 	{
 		private readonly int m_processId;
 		private readonly int m_port;
-		private readonly CommandLineOptions m_options;
+		private readonly bool m_logFrameRate;
 
-		public AppWindowShareServer(int processId, CommandLineOptions options)
+		public AppWindowShareServer(int processId, int port, bool logFrameRate)
 		{
 			m_processId = processId;
-			m_port = options.Port;
-			m_options = options;
+			m_port = port;
+			m_logFrameRate = logFrameRate;
 		}
 
 		public void StartSharing()
@@ -28,17 +28,28 @@ namespace VncScreenShare
 				using var windowCapture = new WindowCapture(hwnd.Value);
 				windowCapture.StartCapture();
 				var serverSocket = new TcpListener(IPAddress.Any, m_port);
-				serverSocket.Start();
-
-				CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-				process.Exited += (sender, args) =>
+				try
 				{
-					cancellationTokenSource.Cancel();
-				};
+					serverSocket.Start();
+					CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+					process.EnableRaisingEvents = true;
+					process.Exited += (sender, args) =>
+					{
+						cancellationTokenSource.Cancel();
+						serverSocket.Stop();
+					};
+					using var socket = serverSocket.AcceptSocket();
+					using var connection = new VncClientConnection(new NetworkStream(socket), windowCapture, new FrameRateLogger(m_logFrameRate));
+					connection.HandleClient(cancellationTokenSource.Token);
 
-				using var socket = serverSocket.AcceptSocket();
-				using var connection = new VncClientConnection(new NetworkStream(socket), windowCapture, new FrameRateLogger(m_options.LogFrameRate));
-				connection.HandleClient(cancellationTokenSource.Token);
+				}
+				catch (SocketException)
+				{
+				}
+				finally
+				{
+					serverSocket.Stop();
+				}
 			}
 			else
 			{
