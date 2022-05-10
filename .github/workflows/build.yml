@@ -31,3 +31,8 @@ jobs:
     # Build
     - name: Build
       run: ./build.ps1 --Target Pack
+
+    - name: Release
+      uses: softprops/action-gh-release@v1
+        with:
+          files: artifacts/*.zip
