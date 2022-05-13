@@ -43,17 +43,22 @@ namespace VncScreenShare
 
 		private static void RunInWatchMode(WatchMode args)
 		{
+			if (args.HideWindow)
+			{
+				ConsoleHelper.HideConsoleWindow();
+			}
 			using IHost host = Host.CreateDefaultBuilder()
-				.ConfigureLogging((context, logging) =>
+				.ConfigureLogging(logging =>
 				{
-					logging.AddEventLog(new EventLogSettings()
-					{
-						SourceName = "VncScreenShare"
-					});
+					logging.AddFilter<EventLogLoggerProvider>(level => level >= LogLevel.Information);
 				})
 				.ConfigureServices(services =>
 				{
 					services.AddHostedService((s) => new ScreenShareBackgroundService(args.ProcessName, args.CommandLine, args.Port, false, s.GetRequiredService<ILogger<ScreenShareBackgroundService>>()));
+					services.Configure<EventLogSettings>(settings =>
+					{
+						settings.SourceName = "VncScreenShare";
+					});
 				})
 				.Build();
 			host.Run();
