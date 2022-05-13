@@ -47,4 +47,4 @@ jobs:
       uses: actions/upload-artifact@v3
       with: 
           name: VncScreenShare_${{ steps.gitversion.outputs.FullSemVer }}
-          path:  artifacts/*.zip
+          path:  artifacts/*

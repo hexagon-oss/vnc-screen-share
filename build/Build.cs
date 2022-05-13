@@ -95,8 +95,8 @@ class Build : NukeBuild
 	    {
 			EnsureCleanDirectory(ArtifactsDirectory);
 		    var publishDir = SourceDirectory / "VncScreenShare" / "bin" / Configuration / "net60-windows10.0.22000" / "win-x64" / "publish";
-		    var artifact = ArtifactsDirectory / $"VncScreenShare_{GitVersion.SemVer}.zip";
-		    CompressionTasks.CompressZip(publishDir, artifact);
+		    var targetDir = ArtifactsDirectory;
+		    CopyDirectoryRecursively(publishDir, targetDir, DirectoryExistsPolicy.Merge);
 	    });
 
 }

@@ -27,6 +27,7 @@ namespace VncScreenShare
 
 		protected override async Task ExecuteAsync(CancellationToken cancellationToken)
 		{
+			m_logger.LogInformation($"Wait until process {m_processName} {m_argument} started");
 			while (!cancellationToken.IsCancellationRequested)
 			{
 				await Task.Delay(ProcessPollInterval, cancellationToken);
@@ -45,6 +46,7 @@ namespace VncScreenShare
 					{
 						m_logger.LogError(e.ToString());
 					}
+					m_logger.LogInformation($"Wait until process {m_processName} {m_argument} started");
 				}
 			}
 		}
