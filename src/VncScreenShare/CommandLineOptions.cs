@@ -37,7 +37,7 @@ namespace VncScreenShare
 			set;
 		}
 
-		[Option('c', "command_line", Required = true, HelpText = "command line match pattern (Regex)")]
+		[Option('c', "command_line", Required = false, HelpText = "command line match pattern (Regex)")]
 		public string CommandLine
 		{
 			get;
@@ -50,11 +50,29 @@ namespace VncScreenShare
 			get;
 			set;
 		}
+
 		[Option('h', "hide", Required = false, HelpText = "Hides the console window", Default = false)]
 		public bool HideWindow
 		{
 			get;
 			set;
 		}
+
+		[Option('m', "move_offscreen", Required = false, HelpText = "Moves the captured window off screen", Default = false)]
+		public bool MoveOffScreen
+		{
+			get;
+			set;
+		}
+
+
+		[Option('w', "window_title", Required = false, Default = null, HelpText = "If a window title is specified the command line and process name argument is ignored")]
+		public string WindowTitle { get; set; }
+	}
+
+
+	[Verb("listwindow", HelpText = "Lists all open windows with associated process id")]
+	class ListWindow
+	{
 	}
 }

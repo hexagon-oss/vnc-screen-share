@@ -87,7 +87,7 @@ namespace VncScreenShare.Capture
 				while (m_pendingFrameRequest)
 				{
 					cancellationToken.ThrowIfCancellationRequested();
-					Monitor.Wait(m_textureLock);
+					Monitor.Wait(m_textureLock, TimeSpan.FromSeconds(1));
 				}
 				// Map our texture and get the bits
 				var mapped = m_sharpDxDevice.ImmediateContext.MapSubresource(m_stagingTexture, 0, MapMode.Read, MapFlags.None);

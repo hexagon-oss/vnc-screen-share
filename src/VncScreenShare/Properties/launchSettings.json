@@ -2,7 +2,7 @@
   "profiles": {
     "vnc-screen-share": {
       "commandName": "Project",
-      "commandLineArgs": "watch -n FlightPro -c \".?/REMOTE.?\" -h"
+      "commandLineArgs": "watch -n FlightSim -m"
     }
   }
 }
