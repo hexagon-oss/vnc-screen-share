@@ -98,7 +98,9 @@ namespace VncScreenShare.Vnc
 			ushort width = m_reader.ReadUInt16();
 			ushort height = m_reader.ReadUInt16();
 
-			var frame = m_windowCapture.WaitForFrame(token, m_pixelFormat);
+			CancellationTokenSource linkedToken = new CancellationTokenSource(TimeSpan.FromSeconds(2));
+			CancellationTokenSource.CreateLinkedTokenSource(token);
+			var frame = m_windowCapture.WaitForFrame(linkedToken.Token, m_pixelFormat);
 
 			//write update message
 			m_writer.Write((byte)ServerMessages.FramebufferUpdate);
@@ -176,6 +178,10 @@ namespace VncScreenShare.Vnc
 
 		private void SendInitMessage()
 		{
+			if (m_windowCapture.Width == 0 || m_windowCapture.Height == 0)
+			{
+				throw new InvalidOperationException("Window was closed");
+			}
 			m_writer.Write((ushort)m_windowCapture.Width);
 			m_writer.Write((ushort)m_windowCapture.Height);
 			m_pixelFormat.WriteToStream(m_writer);

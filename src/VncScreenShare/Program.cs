@@ -11,22 +11,24 @@ namespace VncScreenShare
 	{
 		static void Main(string[] args)
 		{
-			CommandLine.Parser.Default.ParseArguments<CommandLineOptions, WatchMode>(args)
+			CommandLine.Parser.Default.ParseArguments<CommandLineOptions, WatchMode, ListWindow>(args)
 				.WithParsed<CommandLineOptions>(Run)
 				.WithParsed<WatchMode>(RunInWatchMode)
+				.WithParsed<ListWindow>(RunListWindow)
 				.WithNotParsed(InvalidCommandLine);
 
 		}
 
 		private static void Run(CommandLineOptions options)
 		{
-			if (Process.GetProcesses().All(x => x.Id != options.ProcessId))
+			if (Process.GetProcesses().All(x => x.Id != options.ProcessId || x.MainWindowHandle == IntPtr.Zero))
 			{
 				InvalidCommandLine(null);
 				return;
 			}
 
-			var server = new AppWindowShareServer(options.ProcessId, options.Port, options.LogFrameRate);
+			var windowHandle = Process.GetProcessById(options.ProcessId).MainWindowHandle;
+			var server = new AppWindowShareServer(windowHandle, options.Port, options.LogFrameRate);
 			server.StartSharing();
 		}
 
@@ -54,7 +56,7 @@ namespace VncScreenShare
 				})
 				.ConfigureServices(services =>
 				{
-					services.AddHostedService((s) => new ScreenShareBackgroundService(args.ProcessName, args.CommandLine, args.Port, false, s.GetRequiredService<ILogger<ScreenShareBackgroundService>>()));
+					services.AddHostedService((s) => new ScreenShareBackgroundService(args.ProcessName, args.CommandLine, args.Port, false, args.MoveOffScreen, args.WindowTitle, s.GetRequiredService<ILogger<ScreenShareBackgroundService>>()));
 					services.Configure<EventLogSettings>(settings =>
 					{
 						settings.SourceName = "VncScreenShare";
@@ -62,6 +64,23 @@ namespace VncScreenShare
 				})
 				.Build();
 			host.Run();
+		}
+
+		private static void RunListWindow(ListWindow obj)
+		{
+			foreach (var pair in NativeWindowHelper.EnumerateWindows())
+			{
+				var process = Process.GetProcesses().FirstOrDefault(x => pair.Key == x.Id);
+				if (process == null)
+				{
+					continue;
+				}
+				Console.WriteLine($"Process ID {process.Id} - {process.ProcessName}");
+				foreach (var title in pair.Value)
+				{
+					Console.WriteLine($"--> \"{title}\"");
+				}
+			}
 		}
 	}
 }
