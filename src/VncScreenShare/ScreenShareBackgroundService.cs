@@ -49,7 +49,7 @@ namespace VncScreenShare
 						{
 							NativeWindowHelper.MoveWindowOffScreen(windowHandle);
 						}
-						var server = new AppWindowShareServer(windowHandle, m_port, m_logFrameRate);
+						var server = new AppWindowShareServer(windowHandle, m_port, m_logFrameRate, m_logger);
 						server.StartSharing();
 						m_logger.LogInformation($"Stop sharing screen of  {m_processName} - {m_windowTitle}");
 					}

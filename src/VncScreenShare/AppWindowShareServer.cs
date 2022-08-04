@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
+using Microsoft.Extensions.Logging;
 using VncScreenShare.Capture;
 using VncScreenShare.Vnc;
 
@@ -11,12 +12,14 @@ namespace VncScreenShare
 		private readonly IntPtr m_windowHandle;
 		private readonly int m_port;
 		private readonly bool m_logFrameRate;
+        private readonly ILogger m_logger;
 
-		public AppWindowShareServer(IntPtr windowHandle, int port, bool logFrameRate)
+        public AppWindowShareServer(IntPtr windowHandle, int port, bool logFrameRate, ILogger logger)
 		{
 			m_windowHandle = windowHandle;
 			m_port = port;
 			m_logFrameRate = logFrameRate;
+            m_logger = logger;
 		}
 
 		public void StartSharing()
@@ -27,10 +30,10 @@ namespace VncScreenShare
 				using var windowCapture = new WindowCapture(m_windowHandle);
 				windowCapture.StartCapture();
 				var serverSocket = new TcpListener(IPAddress.Any, m_port);
+                CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 				try
 				{
 					serverSocket.Start();
-					CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 					process.EnableRaisingEvents = true;
 					process.Exited += (sender, args) =>
 					{
@@ -40,11 +43,20 @@ namespace VncScreenShare
 					using var socket = serverSocket.AcceptSocket();
 					using var connection = new VncClientConnection(new NetworkStream(socket), windowCapture,
 						new FrameRateLogger(m_logFrameRate));
-					connection.HandleClient(cancellationTokenSource.Token);
-
-				}
-				catch (SocketException)
+                    m_logger.LogInformation($"Client {socket.RemoteEndPoint} connected");
+                    connection.HandleClient(cancellationTokenSource.Token);
+                    m_logger.LogInformation($"Client communication ended");
+                }
+				catch (SocketException exc)
 				{
+                    if (cancellationTokenSource.IsCancellationRequested)
+                    {
+                        m_logger.LogInformation(FormattableString.Invariant($"Exception after cancelling sharing: {exc}"));
+                    }
+                    else
+                    {
+                        m_logger.LogWarning(exc.ToString());
+                    }
 				}
 				finally
 				{
