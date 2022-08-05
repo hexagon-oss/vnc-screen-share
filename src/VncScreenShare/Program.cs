@@ -28,7 +28,7 @@ namespace VncScreenShare
 			}
 
 			var windowHandle = Process.GetProcessById(options.ProcessId).MainWindowHandle;
-			var server = new AppWindowShareServer(windowHandle, options.Port, options.LogFrameRate);
+			var server = new AppWindowShareServer(windowHandle, options.Port, options.LogFrameRate, Microsoft.Extensions.Logging.Abstractions.NullLogger.Instance);
 			server.StartSharing();
 		}
 
