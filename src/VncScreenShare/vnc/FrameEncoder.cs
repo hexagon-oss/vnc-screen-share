@@ -49,6 +49,7 @@ namespace VncScreenShare.Vnc
 		{
 			Console.WriteLine($"Client supports Encodings: {string.Join(";", m_clientEncodings)}");
 			Console.WriteLine($"Server supports Encodings: {string.Join(";", m_supportedEncodings)}");
+			ImageEncoding = ImgEncoding.RawEncoding;
 			foreach (var encoding in m_clientEncodings)
 			{
 				if (m_supportedEncodings.Contains(encoding))
