@@ -1,4 +1,5 @@
-﻿using VncScreenShare.Capture;
+﻿using System.Buffers;
+using VncScreenShare.Capture;
 using VncScreenShare.Vnc;
 
 namespace VncScreenShare.vnc.Rectangles
@@ -21,6 +22,7 @@ namespace VncScreenShare.vnc.Rectangles
 			writer.Write((uint)ImgEncoding.EncodingZlib);
 			writer.Write((uint)compressedLength);
 			writer.Write(compressedData, compressedLength);
+			ArrayPool<byte>.Shared.Return(compressedData);
 		}
 	}
 }
