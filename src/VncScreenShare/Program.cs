@@ -56,7 +56,7 @@ namespace VncScreenShare
 				})
 				.ConfigureServices(services =>
 				{
-					services.AddHostedService((s) => new ScreenShareBackgroundService(args.ProcessName, args.CommandLine, args.Port, false, args.MoveOffScreen, args.WindowTitle, s.GetRequiredService<ILogger<ScreenShareBackgroundService>>()));
+					services.AddHostedService((s) => new ScreenShareBackgroundService(args.ProcessName, args.CommandLine, args.Port, args.LogFrameRate, args.MoveOffScreen, args.WindowTitle, s.GetRequiredService<ILogger<ScreenShareBackgroundService>>()));
 					services.Configure<EventLogSettings>(settings =>
 					{
 						settings.SourceName = "VncScreenShare";

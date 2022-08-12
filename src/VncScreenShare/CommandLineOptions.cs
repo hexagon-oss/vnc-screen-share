@@ -65,6 +65,13 @@ namespace VncScreenShare
 			set;
 		}
 
+		[Option("lr", Required = false, HelpText = "logs frame rate")]
+		public bool LogFrameRate
+		{
+			get;
+			set;
+		}
+
 
 		[Option('w', "window_title", Required = false, Default = null, HelpText = "If a window title is specified the command line and process name argument is ignored")]
 		public string WindowTitle { get; set; }

@@ -2,7 +2,7 @@
   "profiles": {
     "vnc-screen-share": {
       "commandName": "Project",
-      "commandLineArgs": "watch -n FlightSim -m"
+      "commandLineArgs": "watch -n notepad -m --lr"
     }
   }
 }

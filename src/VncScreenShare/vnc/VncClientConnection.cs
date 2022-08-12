@@ -1,12 +1,13 @@
 ﻿using System.Buffers;
 using System.Text;
 using VncScreenShare.Capture;
+using VncScreenShare.vnc.Rectangles;
 
 namespace VncScreenShare.Vnc
 {
 	/// <summary>
 	/// Implements parts of the Remote Famebuffer Protocol
-	/// https://datatracker.ietf.org/doc/html/rfc6143
+	/// https://github.com/rfbproto/rfbproto
 	/// </summary>
 	internal sealed class VncClientConnection : IDisposable
 	{
@@ -15,6 +16,7 @@ namespace VncScreenShare.Vnc
 		private readonly FrameRateLogger m_frameRateLogger;
 		private readonly VncStreamReader m_reader;
 		private readonly VncStreamWriter m_writer;
+		private readonly FrameEncoder m_frameEncoder;
 		private PixelFormat m_pixelFormat;
 
 		public VncClientConnection(Stream stream, WindowCapture windowCapture, FrameRateLogger frameRateLogger)
@@ -25,6 +27,7 @@ namespace VncScreenShare.Vnc
 			m_reader = new VncStreamReader(stream);
 			m_writer = new VncStreamWriter(stream);
 			m_pixelFormat = new PixelFormat(32, 24, false, true, 255, 255, 255, 16, 8, 0);
+			m_frameEncoder = new FrameEncoder(new [] { ImgEncoding.RawEncoding , ImgEncoding.EncodingZlib});
 		}
 
 		public void HandleClient(CancellationToken token)
@@ -102,24 +105,17 @@ namespace VncScreenShare.Vnc
 			CancellationTokenSource.CreateLinkedTokenSource(token);
 			var frame = m_windowCapture.WaitForFrame(linkedToken.Token, m_pixelFormat);
 
+			 var rectangle = m_frameEncoder.EncodeFrame(frame);
+
 			//write update message
 			m_writer.Write((byte)ServerMessages.FramebufferUpdate);
 			m_writer.WritePadding(1); // padding
-
 			//rectangle count  -- currently only one
 			m_writer.Write((ushort)1);
 
 			//rectangle data
-			m_writer.Write((ushort)0); // x
-			m_writer.Write((ushort)0); // y
-
-			m_writer.Write((ushort)frame.width);
-			m_writer.Write((ushort)frame.height);
-
-			// raw encoding
-			m_writer.Write((uint)ImgEncoding.RawEncoding);
-			// write data
-			m_writer.Write(frame.data, frame.length);
+			rectangle.WriteData(m_writer);
+			m_writer.Flush();
 			ArrayPool<byte>.Shared.Return(frame.data);
 			m_frameRateLogger.OnFrameReceived();
 		}
@@ -145,11 +141,9 @@ namespace VncScreenShare.Vnc
 			int count = m_reader.ReadUInt16();
 			for (int i = 0; i < count; i++)
 			{
-				ImgEncoding enc = (ImgEncoding)m_reader.ReadInt32();
-				if (enc >= 0)
-				{
-					Console.WriteLine($"Client supports encoding {enc}");
-				}
+				List<ImgEncoding> encodings = new List<ImgEncoding>();
+				encodings.Add((ImgEncoding)m_reader.ReadInt32());
+				m_frameEncoder.ClientEncodingsConfigured(encodings);
 			}
 		}
 
