@@ -17,6 +17,7 @@ namespace VncScreenShare
 		private readonly string m_windowTitle;
 		private readonly ILogger m_logger;
 		private readonly Regex m_argument;
+		private IntPtr m_windowHandle;
 
 		public 
 			ScreenShareBackgroundService(string processName, string argumentRegexPattern, int port,
@@ -33,23 +34,28 @@ namespace VncScreenShare
 				: new Regex(argumentRegexPattern);
 		}
 
+		private void MoveOffScreen(Object stateInfo)
+		{
+			if (m_moveOffScreen)
+			{
+				NativeWindowHelper.MoveWindowOffScreen(m_windowHandle);
+			}
+		}
+
 		protected override async Task ExecuteAsync(CancellationToken cancellationToken)
 		{
 			m_logger.LogInformation($"Wait until process {m_processName} {m_argument} started");
 			while (!cancellationToken.IsCancellationRequested)
 			{
 				await Task.Delay(ProcessPollInterval, cancellationToken);
-				var windowHandle = FindMatchingWindowHandle();
-				if (windowHandle != IntPtr.Zero)
+				m_windowHandle = FindMatchingWindowHandle();
+				if (m_windowHandle != IntPtr.Zero)
 				{
 					try
 					{
 						m_logger.LogInformation($"Start sharing screen of {m_processName} - {m_windowTitle}");
-						if (m_moveOffScreen)
-						{
-							NativeWindowHelper.MoveWindowOffScreen(windowHandle);
-						}
-						var server = new AppWindowShareServer(windowHandle, m_port, m_logFrameRate, m_logger);
+						using var moveOffScreenTimer = new Timer(MoveOffScreen, null, TimeSpan.Zero,TimeSpan.FromSeconds(3));
+						var server = new AppWindowShareServer(m_windowHandle, m_port, m_logFrameRate, m_logger);
 						server.StartSharing();
 						m_logger.LogInformation($"Stop sharing screen of  {m_processName} - {m_windowTitle}");
 					}
