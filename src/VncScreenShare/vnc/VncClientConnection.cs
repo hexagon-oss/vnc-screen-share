@@ -101,9 +101,7 @@ namespace VncScreenShare.Vnc
 			ushort width = m_reader.ReadUInt16();
 			ushort height = m_reader.ReadUInt16();
 
-			CancellationTokenSource linkedToken = new CancellationTokenSource(TimeSpan.FromSeconds(2));
-			CancellationTokenSource.CreateLinkedTokenSource(token);
-			var frame = m_windowCapture.WaitForFrame(linkedToken.Token, m_pixelFormat);
+			var frame = m_windowCapture.WaitForFrame(token, m_pixelFormat);
 
 			 var rectangle = m_frameEncoder.EncodeFrame(frame);
 
@@ -190,6 +188,8 @@ namespace VncScreenShare.Vnc
 			m_stream.Dispose();
 			m_reader.Dispose();
 			m_writer.Dispose();
-		}
+
+			m_frameRateLogger.Dispose();
+        }
 	}
 }

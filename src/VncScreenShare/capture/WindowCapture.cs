@@ -55,7 +55,10 @@ namespace VncScreenShare.Capture
 #pragma warning restore CA1416 // Validate platform compatibility
 			}
 
-			m_framePool.FrameArrived += OnFrameArrived;
+			// always capture one frame on startup
+            m_pendingFrameRequest = true;
+			// event is only triggered when something changes on the captured UI
+            m_framePool.FrameArrived += OnFrameArrived;
 			m_session.StartCapture();
 		}
 
@@ -84,10 +87,13 @@ namespace VncScreenShare.Capture
 			lock (m_textureLock)
 			{
 				m_pendingFrameRequest = true;
-				while (m_pendingFrameRequest)
+				while (m_pendingFrameRequest && !cancellationToken.IsCancellationRequested)
 				{
-					cancellationToken.ThrowIfCancellationRequested();
-					Monitor.Wait(m_textureLock, TimeSpan.FromSeconds(1));
+                    if (!Monitor.Wait(m_textureLock, TimeSpan.FromSeconds(1)))
+                    {
+                        // never received a new frame in OnFrameArrived
+                        break;
+                    }
 				}
 				// Map our texture and get the bits
 				var mapped = m_sharpDxDevice.ImmediateContext.MapSubresource(m_stagingTexture, 0, MapMode.Read, MapFlags.None);

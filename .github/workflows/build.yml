@@ -44,7 +44,7 @@ jobs:
         useConfigFile: true
       
     - name: UploadArtifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with: 
           name: VncScreenShare_${{ steps.gitversion.outputs.FullSemVer }}
           path:  artifacts/*
