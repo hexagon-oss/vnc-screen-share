@@ -190,6 +190,8 @@ namespace VncScreenShare.Vnc
 			m_stream.Dispose();
 			m_reader.Dispose();
 			m_writer.Dispose();
-		}
+
+			m_frameRateLogger.Dispose();
+        }
 	}
 }
