@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>net60-windows10.0.22000</TargetFrameworks>
-	  <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <TargetFrameworks>net6.0-windows10.0.22000</TargetFrameworks>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     <RootNamespace>VncScreenShare</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>

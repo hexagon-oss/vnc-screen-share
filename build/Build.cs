@@ -85,7 +85,7 @@ class Build : NukeBuild
 				.SetAssemblyVersion(GitVersion.AssemblySemVer)
 			    .SetFileVersion(GitVersion.AssemblySemFileVer)
 			    .SetInformationalVersion(GitVersion.InformationalVersion)
-			    .SetFramework("net60-windows10.0.22000")
+			    .SetFramework("net6.0-windows10.0.22000")
 		    );
 	    });
 
@@ -94,7 +94,7 @@ class Build : NukeBuild
 	    .Executes(() =>
 	    {
 			EnsureCleanDirectory(ArtifactsDirectory);
-		    var publishDir = SourceDirectory / "VncScreenShare" / "bin" / Configuration / "net60-windows10.0.22000" / "win-x64" / "publish";
+		    var publishDir = SourceDirectory / "VncScreenShare" / "bin" / Configuration / "net6.0-windows10.0.22000" / "win-x64" / "publish";
 		    var targetDir = ArtifactsDirectory;
 		    CopyDirectoryRecursively(publishDir, targetDir, DirectoryExistsPolicy.Merge);
 	    });
