@@ -7,7 +7,7 @@
         <description>VNC server to share an applications UI via VNC.</description>
         <authors>Leica Geosystems AG</authors>
         <owners>Leica Geosystems AG</owners>
-        <copyright>Copyright (C) 1999-2022 Leica Geosystems AG</copyright>
+        <copyright>Copyright (C) 1999-2025 Leica Geosystems AG</copyright>
  
         <!-- Optional elements -->
         <license type="expression">MIT</license>
@@ -16,7 +16,7 @@
     <!-- Optional 'files' node -->
     <files>
         <file src="VncScreenShare.*" target="tools" />
-        <file src="..\..\..\..\LeicaGeosystemsAG.VncScreenShare.VncScreenShare.targets" target="build" />
-        <file src="..\..\..\..\VncScreenShare.png" target="images" />
+        <file src="../../../../../LeicaGeosystemsAG.VncScreenShare.VncScreenShare.targets" target="build" />
+        <file src="../../../../../VncScreenShare.png" target="images" />
     </files>
 </package>

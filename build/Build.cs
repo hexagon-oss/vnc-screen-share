@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Nuke.Common;
@@ -71,7 +71,7 @@ class Build : NukeBuild
                 .EnableNoRestore());
         });
 		
-		 Target PublishExecutable => _ => _
+	Target PublishExecutable => _ => _
 	    .DependsOn(Compile)
 	    .Executes(() =>
 	    {
@@ -95,8 +95,16 @@ class Build : NukeBuild
 	    {
 			EnsureCleanDirectory(ArtifactsDirectory);
 		    var publishDir = SourceDirectory / "VncScreenShare" / "bin" / Configuration / "net6.0-windows10.0.22000" / "win-x64" / "publish";
-		    var targetDir = ArtifactsDirectory;
-		    CopyDirectoryRecursively(publishDir, targetDir, DirectoryExistsPolicy.Merge);
-	    });
+
+		    NuGetPack(s => s
+			    .SetBasePath(publishDir)
+			    .SetBuild(false)
+			    .SetVersion(GitVersion.SemVer)
+			    .SetConfiguration(Configuration)
+			    .SetTargetPath(SourceDirectory / "VncScreenShare" / "VncScreenShare.nuspec")
+			    .SetOutputDirectory(ArtifactsDirectory)
+			    .SetProcessWorkingDirectory(SourceDirectory / "VncScreenShare")
+		    );
+		});
 
 }
