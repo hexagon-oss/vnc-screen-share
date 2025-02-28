@@ -23,10 +23,15 @@ jobs:
         fetch-depth: 0
 
     # Install the .NET 
-    - name: Install .NET Core
+    - name: Install .NET Core 6.0
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: 6.0.x
+
+    - name: Install .NET Core 8.0
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: 8.0.x
 
     # Build
     - name: Build

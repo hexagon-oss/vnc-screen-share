@@ -94,7 +94,7 @@ namespace VncScreenShare
 					}
 					catch (Exception e)
 					{
-						m_logger.LogWarning(
+						m_logger.LogWarning(e,
 							$"Could not get startup information for process {process.ProcessName} - is service running with required privileges?");
 					}
 				}
